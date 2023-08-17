@@ -17,6 +17,7 @@ import time
 import serial
 import random
 from random import randint
+import statistics
 
 from ui_bateFaca import Ui_MainWindow as ui
 
@@ -25,6 +26,8 @@ hora = datetime.datetime.now()
 qtCreatorFile = "bate-faca.ui"  # Esse e o arquivo .ui gerado pelo QtDesigner
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qtCreatorFile)
 ser = serial.Serial('/dev/ttyACM0', 9600)  # abre porta serial COM6
+lista_1 = []
+lista_2 = []
 
 
 #class Canvas_grafica(FigureCanvas):
@@ -46,7 +49,7 @@ class MyWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.top = 30
         self.left = 10
-        self.width = 1350
+        self.width = 1300
         self.height = 750
         self.date_time()
         self.InitUi()
@@ -63,17 +66,31 @@ class MyWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lcd = QLCDNumber()
         self.lcd.display(60)
 #        random = randint(1, 200)
-
         while ser.inWaiting() == 0:
                 pass
         lista = str(ser.readline())
         try:
                 lista = lista.split("x")
                 dados = float(lista[1])
+                if len(lista_1) < 50 :
+                   lista_1.append(dados)
+                else :
+                   lista_1.pop(0)
+                   lista_1.append(dados)
+                   
                 dados2 = (float(lista[2]) * -1)
+                if len(lista_2) < 50 :
+                   lista_2.append(dados2)
+                else :
+                   lista_2.pop(0)
+                   lista_2.append(dados2)
                 # leitura.append(random.randint(-5,10))  #teste com numeros aleatorios
-                self.lcdNumber.display(dados)
-                self.lcdNumber_2.display(dados2)
+                #media = (sum(lista_1)/len(lista_1))
+                #media2 = (sum(lista_2)/len(lista2))
+                media = float(statistics.mean(lista_1))
+                media2 = float(statistics.mean(lista_2))
+                self.lcdNumber.display(media)
+                self.lcdNumber_2.display(media2)
         except:
                 lista = str(ser.readline())
 
